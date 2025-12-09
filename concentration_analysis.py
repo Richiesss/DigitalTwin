@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 # Load data
-df = pd.read_csv("pose_output.csv")
+df = pd.read_csv("pose_output_selected.csv")
 
 # Filter valid tracking IDs
 df = df.dropna(subset=["tracking_id"])
@@ -70,8 +70,11 @@ color_map = {True: "red", False: "green"}
 
 # Plot each ID's timeline
 # We will plot a point for every frame
-# Y-axis: Tracking ID
+# Y-axis: Tracking ID (compacted to sequential positions)
 # X-axis: Frame Number
+
+# Create a mapping from tracking ID to y-position (0, 1, 2, ...)
+id_to_position = {tid: idx for idx, tid in enumerate(ids)}
 
 for tid in ids:
     id_data = df[df["tracking_id"] == tid].sort_values("frame")
@@ -80,8 +83,10 @@ for tid in ids:
     # But scatter is easiest for variable data
     colors = id_data["look_down"].map(color_map)
 
+    # Use the compacted position instead of the actual tracking ID
+    y_position = id_to_position[tid]
     plt.scatter(
-        id_data["frame"], [tid] * len(id_data), c=colors, s=15, marker="|", alpha=0.8
+        id_data["frame"], [y_position] * len(id_data), c=colors, s=15, marker="|", alpha=0.8
     )
 
 plt.xlabel("Frame Number", fontsize=12)
@@ -89,7 +94,8 @@ plt.ylabel("Student ID", fontsize=12)
 plt.title(
     "Concentration Timeline: Looking Down (Red) vs. Concentrated (Green)", fontsize=14
 )
-plt.yticks(ids)
+# Set y-ticks to show actual tracking IDs at compacted positions
+plt.yticks(range(len(ids)), ids)
 plt.grid(True, axis="y", linestyle="--", alpha=0.5)
 
 # Legend
