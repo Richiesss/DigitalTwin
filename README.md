@@ -193,6 +193,54 @@ python visualize_keypoints.py -t 1 -k right-eye -o right_eye.png
 python visualize_keypoints.py -t 1 -k nose -o nose.png
 ```
 
+### 3. 集中度分析
+
+トラッキング結果のCSVファイルから、各人物の集中度（うつむいていない時間の割合）を分析し、タイムラインをグラフ化します。
+
+```bash
+python concentration_analysis.py
+```
+
+#### 注意事項
+
+- デフォルトでは `pose_output.csv` を読み込みます
+- 別のCSVファイルを使用する場合は、スクリプト内の7行目を編集してください
+
+```python
+df = pd.read_csv("pose_output.csv")  # ここを変更
+```
+
+#### 出力
+
+1. **コンソール出力**: 各トラッキングIDの統計情報
+
+```
+Concentration Statistics:
+   Tracking ID  Total Frames  Look Down Frames  Concentration Rate (%)
+0            1          1234               234                    81.0
+1            2           987               123                    87.5
+...
+```
+
+統計情報の説明:
+- **Tracking ID**: 人物のID
+- **Total Frames**: その人物が検出されたフレーム数
+- **Look Down Frames**: うつむいていたフレーム数
+- **Concentration Rate (%)**: 集中度（うつむいていない時間の割合）
+
+2. **グラフ画像** (`concentration_analysis_final.png`): 各人物の集中状態のタイムライン
+   - X軸: フレーム番号
+   - Y軸: トラッキングID（Student ID）
+   - 緑色: 集中している状態（うつむいていない）
+   - 赤色: うつむいている状態（集中していない可能性）
+
+#### スクリプトの処理内容
+
+1. CSVファイルを読み込み、有効なトラッキングIDのみをフィルタリング
+2. 無効な座標（鼻の座標が0のデータなど）を除去
+3. 各トラッキングIDごとに集中度を計算
+4. タイムラインをグラフ化し、PNG画像として保存
+
 ## トラブルシューティング
 
 ### モデルのダウンロードエラー
